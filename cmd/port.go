@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ejcx/map/port"
 	"github.com/ejcx/map/scan"
+	"github.com/ejcx/map/scan/port"
 	"github.com/spf13/cobra"
 )
 
