@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"net"
 	"strconv"
@@ -44,6 +46,37 @@ to quickly create a Cobra application.`,
 	cidrs    []*port.Cidr
 )
 
+func parsePortRange(pr string) ([]int, error) {
+	s := strings.Split(pr, "-")
+
+	// If it does has a dash, it should be a small number
+	// and a larger number. The reverse is invalid.
+	if len(s) != 2 {
+		return nil, errors.New("Port range must be two ints. Format 1-2")
+	}
+	a, err := strconv.Atoi(s[0])
+	if err != nil {
+		return nil, fmt.Errorf("Number must be passed for a port range: %s, %s", a, err)
+	}
+	b, err := strconv.Atoi(s[1])
+	if err != nil {
+		return nil, fmt.Errorf("Number must be passed for a port range: %s, %s", b, err)
+	}
+	if b <= a {
+		return nil, fmt.Errorf("Invalid port range. %s is greater than or equal to %s", a, b)
+	}
+	var (
+		nums []int
+	)
+	for i := a; i < b; i++ {
+		if i < 0 || i > 65535 {
+			return nil, fmt.Errorf("Invalid port number: %s")
+		}
+		nums = append(nums, i)
+	}
+	return nums, nil
+}
+
 func run(cmd *cobra.Command, args []string) {
 
 	portList := strings.Split(portCsv, ",")
@@ -56,10 +89,17 @@ func run(cmd *cobra.Command, args []string) {
 	for _, port := range portList {
 		p, err := strconv.Atoi(port)
 		if err != nil {
-			log.Fatalf("Invalid port value passed: %s", err)
-		}
-		if p < 0 || p > 65535 {
-			log.Fatal("Invalid port number: ", port)
+			// If the port list did not
+			ports, err := parsePortRange(port)
+			if err != nil {
+				log.Fatal(err)
+			}
+			portNums = append(portNums, ports...)
+			continue
+		} else {
+			if p < 0 || p > 65535 {
+				log.Fatalf("Invalid port number: %s", port)
+			}
 		}
 		portNums = append(portNums, p)
 	}

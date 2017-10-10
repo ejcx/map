@@ -64,6 +64,7 @@ func (p *PortScan) ParseSetCIDR(cidr string) error {
 }
 
 func (p *PortScan) Do() {
+	fmt.Println(p)
 	var wg sync.WaitGroup
 
 	for _, n := range p.CIDR {
