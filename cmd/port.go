@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/ejcx/map/port"
+	"github.com/ejcx/map/scan"
 	"github.com/spf13/cobra"
 )
 
@@ -44,11 +45,7 @@ to quickly create a Cobra application.`,
 )
 
 func run(cmd *cobra.Command, args []string) {
-	//p := port.New()
-	//err := p.ParseSetCIDR("10.0.0.0/24")
-	//if err != nil {
-	//	log.Fatalf("Invalid CIDR passed to port scan")
-	//}
+
 	portList := strings.Split(portCsv, ",")
 	netList := strings.Split(netCsv, ",")
 
@@ -83,8 +80,7 @@ func run(cmd *cobra.Command, args []string) {
 		CIDR:  cidrs,
 		Ports: portNums,
 	}
-	s.Do()
-
+	scan.Do(s)
 }
 
 func init() {

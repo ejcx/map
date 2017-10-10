@@ -3,6 +3,8 @@ package port
 import (
 	"fmt"
 	"net"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -62,14 +64,22 @@ func (p *PortScan) ParseSetCIDR(cidr string) error {
 }
 
 func (p *PortScan) Do() {
+	var wg sync.WaitGroup
+
 	for _, n := range p.CIDR {
 		for _, port := range p.Ports {
 			ipList := ipEnumerator(n)
 			q := make(chan net.IP)
 			for i := 0; i < Workers; i++ {
+				wg.Add(1)
 				go func() {
 					for ip := range q {
-						conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", ip.String(), port), time.Second)
+						fmter := "%s:%d"
+						// Handle IPv6 Addresses.
+						if strings.Contains(ip.String(), ":") {
+							fmter = "[%s]:%d"
+						}
+						conn, err := net.DialTimeout("tcp", fmt.Sprintf(fmter, ip.String(), port), time.Second)
 						if err != nil {
 							fmt.Println(err)
 							continue
@@ -77,6 +87,7 @@ func (p *PortScan) Do() {
 						fmt.Println("Actual conneciton!")
 						conn.Close()
 					}
+					defer wg.Done()
 					return
 				}()
 			}
@@ -88,6 +99,7 @@ func (p *PortScan) Do() {
 
 		}
 	}
+	wg.Wait()
 }
 
 func ipEnumerator(c *Cidr) []net.IP {
