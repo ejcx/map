@@ -11,17 +11,22 @@ const (
 	Workers = 20
 )
 
+var (
+	report map[string]map[string]map[string]Report
+)
+
 type Scan interface {
 	Do(s *NetScan)
 	Identifier() string
 }
 
-func RegisterDoer(s *Scan) {
-
+type Report struct {
+	AdditionalInfo []string
+	Success        bool
 }
 
 type Connector interface {
-	Do(addr string) bool
+	Do(addr string) (bool, []string)
 }
 
 type IPEnumerator struct {
@@ -38,6 +43,11 @@ type NetScan struct {
 type Cidr struct {
 	IP    net.IP
 	IPNet *net.IPNet
+}
+
+func reportit(ip, port, service, success bool, additionalInfo []string) {
+	fmt.Println("hi")
+
 }
 
 // ParseSetCIDR will parse a CIDR string that is in the format
@@ -78,10 +88,9 @@ func Do(p *NetScan, conFunc []Connector) {
 								fmter = "[%s]:%d"
 							}
 							addr := fmt.Sprintf(fmter, ip.String(), xport)
-							yes := c.Do(addr)
-							if yes {
-								fmt.Println(addr)
-							}
+
+							// Whatever the result is, reportit will handle it.
+							c.Do(addr)
 						}
 						defer wg.Done()
 						return
