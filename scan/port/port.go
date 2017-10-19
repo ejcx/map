@@ -17,6 +17,8 @@ func (p *PortDoer) Do(addr string) bool {
 	if err != nil {
 		return false
 	}
-	conn.Close()
+	if conn != nil {
+		conn.Close()
+	}
 	return true
 }
