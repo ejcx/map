@@ -23,18 +23,12 @@ import (
 	"strings"
 
 	"github.com/ejcx/map/scan"
-	"github.com/ejcx/map/scan/port"
-	"github.com/ejcx/map/scan/redis"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	ValidArgs = map[string]scan.Connector{
-		"redis": redis.Doer,
-		"port":  port.Doer,
-	}
 	cfgFile   string
 	scanTypes []string
 )
@@ -46,7 +40,7 @@ var (
 		Short: "map is a simple and powerful network scanning tool",
 		Long: `You can use map to scan a network for open ports
 or available services on the network.`,
-		Run: run,
+		//Run: run,
 	}
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -66,14 +60,15 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.Flags().StringVarP(&portCsv, "ports", "p", "80,443", "The set of ports to scan")
-	RootCmd.Flags().StringVarP(&netCsv, "nets", "n", "10.0.0.0/24", "The cidrs to scan")
-	cobra.OnInitialize(initConfig)
+	//RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "80,443", "The set of ports to scan")
+	RootCmd.PersistentFlags().StringVarP(&netCsv, "nets", "n", "10.0.0.0/24", "The cidrs to scan")
+	RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "0", "The set of ports to scan")
+	//cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.map.yaml)")
+	// RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.map.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -136,9 +131,10 @@ func parsePortRange(pr string) ([]int, error) {
 	return nums, nil
 }
 
-func run(cmd *cobra.Command, args []string) {
+func root(cmd *cobra.Command, port string, f scan.Connector) {
 
 	portList := strings.Split(portCsv, ",")
+	fmt.Println(portList)
 	netList := strings.Split(netCsv, ",")
 
 	// We don't want to begin scanning and be surprised by an entry
@@ -182,16 +178,5 @@ func run(cmd *cobra.Command, args []string) {
 		Ports: portNums,
 		Scans: scans,
 	}
-	doers := []scan.Connector{}
-	for _, arg := range args {
-		if f, ok := ValidArgs[arg]; ok {
-			doers = append(doers, f)
-		} else {
-			log.Fatalf("Invalid scan type: %s", arg)
-		}
-	}
-
-	// Cobra will do this somehow but I don't care
-	// that much. Find any args that do not belong.
-	scan.Do(s, doers)
+	scan.Do(s, []scan.Connector{f})
 }

@@ -20,17 +20,16 @@ func (p *RedisDoer) Identifier() string {
 	return identifier
 }
 func (p *RedisDoer) Do(addr string) (bool, []string) {
-	fmt.Println("Redis scanning")
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: "",
 		DB:       0, // use default DB
 	})
 
-	pong, err := client.Ping().Result()
+	_, err := client.Ping().Result()
 	if err != nil {
 		return false, nil
 	}
-	fmt.Println(pong)
+	fmt.Printf("%s : Redis")
 	return true, nil
 }
