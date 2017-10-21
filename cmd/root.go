@@ -23,9 +23,7 @@ import (
 	"strings"
 
 	"github.com/ejcx/map/scan"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -61,7 +59,7 @@ func Execute() {
 
 func init() {
 	//RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "80,443", "The set of ports to scan")
-	RootCmd.PersistentFlags().StringVarP(&netCsv, "nets", "n", "10.0.0.0/24", "The cidrs to scan")
+	RootCmd.PersistentFlags().StringVarP(&netCsv, "nets", "n", "", "The cidrs to scan")
 	RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "0", "The set of ports to scan")
 	//cobra.OnInitialize(initConfig)
 
@@ -76,29 +74,29 @@ func init() {
 }
 
 // initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Search config in home directory with name ".map" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".map")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	//if err := viper.ReadInConfig(); err == nil {
-	//	fmt.Println("Using config file:", viper.ConfigFileUsed())
-	//}
-}
+// func initConfig() {
+// 	if cfgFile != "" {
+// 		// Use config file from the flag.
+// 		viper.SetConfigFile(cfgFile)
+// 	} else {
+// 		// Find home directory.
+// 		home, err := homedir.Dir()
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+//
+// 		// Search config in home directory with name ".map" (without extension).
+// 		viper.AddConfigPath(home)
+// 		viper.SetConfigName(".map")
+// 	}
+//
+// 	viper.AutomaticEnv() // read in environment variables that match
+//
+// 	// If a config file is found, read it in.
+// 	//if err := viper.ReadInConfig(); err == nil {
+// 	//	fmt.Println("Using config file:", viper.ConfigFileUsed())
+// 	//}
+// }
 
 func parsePortRange(pr string) ([]int, error) {
 	s := strings.Split(pr, "-")
@@ -133,8 +131,10 @@ func parsePortRange(pr string) ([]int, error) {
 
 func root(cmd *cobra.Command, port string, f scan.Connector) {
 
+	if portCsv == "0" {
+		portCsv = port
+	}
 	portList := strings.Split(portCsv, ",")
-	fmt.Println(portList)
 	netList := strings.Split(netCsv, ",")
 
 	// We don't want to begin scanning and be surprised by an entry

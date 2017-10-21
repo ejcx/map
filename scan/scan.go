@@ -46,7 +46,6 @@ type Cidr struct {
 }
 
 func reportit(ip, port, service, success bool, additionalInfo []string) {
-	fmt.Println("hi")
 
 }
 

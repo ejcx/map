@@ -34,23 +34,10 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if portCsv == "0" {
-			portCsv = defaultRedisPort
-		}
-		root(cmd, portCsv, redis.Doer)
+		root(cmd, defaultRedisPort, redis.Doer)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(redisCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// redisCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// redisCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
