@@ -46,6 +46,6 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	redisCmd.Flags().StringVarP(&password, "secret", "w", "", "The password attempt to use in the scan.")
+	redisCmd.Flags().StringVarP(&password, "secret", "s", "", "The password attempt to use in the scan.")
 	RootCmd.AddCommand(redisCmd)
 }

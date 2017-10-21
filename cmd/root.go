@@ -45,6 +45,7 @@ or available services on the network.`,
 	//	Run: func(cmd *cobra.Command, args []string) { },
 	portCsv  string
 	netCsv   string
+	workers  int
 	portNums []int
 	cidrs    []*scan.Cidr
 )
@@ -59,8 +60,9 @@ func Execute() {
 
 func init() {
 	//RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "80,443", "The set of ports to scan")
-	RootCmd.PersistentFlags().StringVarP(&netCsv, "nets", "n", "", "The cidrs to scan")
+	RootCmd.PersistentFlags().StringVarP(&netCsv, "net", "n", "", "The cidrs to scan")
 	RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "0", "The set of ports to scan")
+	RootCmd.PersistentFlags().IntVarP(&workers, "workers", "w", 50, "The number of goroutinues to use for parallel scanning")
 	//cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
@@ -174,9 +176,10 @@ func root(cmd *cobra.Command, port string, f scan.Connector) {
 
 	// Run the scan.
 	s := &scan.NetScan{
-		CIDR:  cidrs,
-		Ports: portNums,
-		Scans: scans,
+		CIDR:    cidrs,
+		Ports:   portNums,
+		Scans:   scans,
+		Workers: workers,
 	}
 	scan.Do(s, []scan.Connector{f})
 }

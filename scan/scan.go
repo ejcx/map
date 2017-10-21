@@ -35,9 +35,10 @@ type IPEnumerator struct {
 }
 
 type NetScan struct {
-	CIDR  []*Cidr
-	Ports []int
-	Scans []string
+	CIDR    []*Cidr
+	Ports   []int
+	Scans   []string
+	Workers int
 }
 
 type Cidr struct {
@@ -68,15 +69,17 @@ func (p *NetScan) SetCIDR(c *Cidr) {
 func Do(p *NetScan, conFunc []Connector) {
 	var wg sync.WaitGroup
 
+	fmt.Println(p)
 	for _, c := range conFunc {
 		for _, n := range p.CIDR {
 			for _, xport := range p.Ports {
 				ipList := ipEnumerator(n)
 				q := make(chan net.IP)
-				for i := 0; i < Workers; i++ {
+				for i := 0; i < p.Workers; i++ {
 					wg.Add(1)
 					go func() {
 						for ip := range q {
+							fmt.Printf("Added worker number %d", i)
 							fmter := "%s:%d"
 							// Handle IPv6 Addresses.
 							if strings.Contains(ip.String(), ":") {
