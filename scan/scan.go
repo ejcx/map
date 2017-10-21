@@ -17,7 +17,6 @@ var (
 
 type Scan interface {
 	Do(s *NetScan)
-	Identifier() string
 }
 
 type Report struct {
@@ -27,6 +26,7 @@ type Report struct {
 
 type Connector interface {
 	Do(addr string) (bool, []string)
+	Identifier() string
 }
 
 type IPEnumerator struct {
@@ -43,10 +43,6 @@ type NetScan struct {
 type Cidr struct {
 	IP    net.IP
 	IPNet *net.IPNet
-}
-
-func reportit(ip, port, service, success bool, additionalInfo []string) {
-
 }
 
 // ParseSetCIDR will parse a CIDR string that is in the format
@@ -89,7 +85,8 @@ func Do(p *NetScan, conFunc []Connector) {
 							addr := fmt.Sprintf(fmter, ip.String(), xport)
 
 							// Whatever the result is, reportit will handle it.
-							c.Do(addr)
+							success, additionalInfo := c.Do(addr)
+							reportit(ip.String(), c.Identifier(), xport, success, additionalInfo)
 						}
 						defer wg.Done()
 						return

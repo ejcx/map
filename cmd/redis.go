@@ -19,6 +19,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	password string
+)
+
 const (
 	defaultRedisPort = "6379"
 )
@@ -34,10 +38,14 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		root(cmd, defaultRedisPort, redis.Doer)
+		doer := &redis.RedisDoer{
+			Password: password,
+		}
+		root(cmd, defaultRedisPort, doer)
 	},
 }
 
 func init() {
+	redisCmd.Flags().StringVarP(&password, "secret", "w", "", "The password attempt to use in the scan.")
 	RootCmd.AddCommand(redisCmd)
 }

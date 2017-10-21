@@ -1,3 +1,6 @@
 NAME:=map
-build:
+build: 
 	go build -o $(NAME) .
+
+
+.SILENT: build

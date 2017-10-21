@@ -1,8 +1,6 @@
 package redis
 
 import (
-	"fmt"
-
 	redis "gopkg.in/redis.v3"
 )
 
@@ -10,19 +8,18 @@ const (
 	identifier = "redis"
 )
 
-var (
-	Doer = &RedisDoer{}
-)
-
-type RedisDoer struct{}
+type RedisDoer struct {
+	Password string
+}
 
 func (p *RedisDoer) Identifier() string {
 	return identifier
 }
-func (p *RedisDoer) Do(addr string) (bool, []string) {
+
+func (r *RedisDoer) Do(addr string) (bool, []string) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
-		Password: "",
+		Password: r.Password,
 		DB:       0, // use default DB
 	})
 
@@ -30,6 +27,5 @@ func (p *RedisDoer) Do(addr string) (bool, []string) {
 	if err != nil {
 		return false, nil
 	}
-	fmt.Printf("%s : Redis")
 	return true, nil
 }
