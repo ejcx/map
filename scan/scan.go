@@ -2,6 +2,7 @@ package scan
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"strings"
 	"sync"
@@ -69,37 +70,42 @@ func (p *NetScan) SetCIDR(c *Cidr) {
 func Do(p *NetScan, conFunc []Connector) {
 	var wg sync.WaitGroup
 
-	fmt.Println(p)
-	for _, c := range conFunc {
-		for _, n := range p.CIDR {
-			for _, xport := range p.Ports {
-				ipList := ipEnumerator(n)
-				q := make(chan net.IP)
-				for i := 0; i < p.Workers; i++ {
-					wg.Add(1)
-					go func() {
-						for ip := range q {
-							fmt.Printf("Added worker number %d", i)
-							fmter := "%s:%d"
-							// Handle IPv6 Addresses.
-							if strings.Contains(ip.String(), ":") {
-								fmter = "[%s]:%d"
-							}
-							addr := fmt.Sprintf(fmter, ip.String(), xport)
+	// For now, there is only one conFunc that should
+	// be passed to this at a time. Instead of having
+	// a loop and this code being future proof, just
+	// take out the conFunc and run the one.
+	if len(conFunc) != 1 {
+		log.Fatalf("Invalid number of arguments passed to Do: %d", len(conFunc))
+	}
 
-							// Whatever the result is, reportit will handle it.
-							success, additionalInfo := c.Do(addr)
-							reportit(ip.String(), c.Identifier(), xport, success, additionalInfo)
+	c := conFunc[0]
+	for _, n := range p.CIDR {
+		for _, xport := range p.Ports {
+			ipList := ipEnumerator(n)
+			q := make(chan net.IP)
+			for i := 0; i < p.Workers; i++ {
+				wg.Add(1)
+				go func() {
+					for ip := range q {
+						fmter := "%s:%d"
+						// Handle IPv6 Addresses.
+						if strings.Contains(ip.String(), ":") {
+							fmter = "[%s]:%d"
 						}
-						defer wg.Done()
-						return
-					}()
-				}
-				for i := 0; i < len(ipList); i++ {
-					q <- ipList[i]
-				}
-				close(q)
+						addr := fmt.Sprintf(fmter, ip.String(), xport)
+
+						// Whatever the result is, reportit will handle it.
+						success, additionalInfo := c.Do(addr)
+						reportit(ip.String(), c.Identifier(), xport, success, additionalInfo)
+					}
+					defer wg.Done()
+					return
+				}()
 			}
+			for i := 0; i < len(ipList); i++ {
+				q <- ipList[i]
+			}
+			close(q)
 		}
 	}
 	wg.Wait()
