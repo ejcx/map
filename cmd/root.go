@@ -169,7 +169,7 @@ func root(cmd *cobra.Command, port string, f scan.Connector) {
 		if err != nil {
 			log.Fatalf("Invalid cidr passed as arg: %s", err)
 		}
-		cidrs = append(cidrs, &scan.Cidr{IP: i, IPNet: s})
+		cidrs = append(cidrs, &scan.Cidr{IP: i, IPNet: s, Original: cidr})
 	}
 
 	scans := []string{}
