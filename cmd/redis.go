@@ -19,10 +19,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	password string
-)
-
 const (
 	defaultRedisPort = "6379"
 )
@@ -46,6 +42,6 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	redisCmd.Flags().StringVarP(&password, "secret", "s", "", "The password attempt to use in the scan.")
+	addPassword()
 	RootCmd.AddCommand(redisCmd)
 }

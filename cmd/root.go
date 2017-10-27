@@ -29,6 +29,8 @@ import (
 var (
 	cfgFile   string
 	scanTypes []string
+
+	PasswordAdded = false
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -48,6 +50,8 @@ or available services on the network.`,
 	workers  int
 	portNums []int
 	cidrs    []*scan.Cidr
+
+	password string
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -56,6 +60,19 @@ func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func addPassword() {
+	if !PasswordAdded {
+		addFlag("password", "s", "", "The password attempt to use in the scan", &password)
+	}
+	PasswordAdded = true
+}
+
+// addFlag is a small abstraction around adding flags.
+// We want to only add a flag one time.
+func addFlag(longOpt, opt, def, desc string, v *string) {
+	RootCmd.PersistentFlags().StringVarP(v, longOpt, opt, def, desc)
 }
 
 func init() {
