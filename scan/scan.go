@@ -59,6 +59,7 @@ type NetScan struct {
 	Ports   []int
 	Scans   []string
 	Workers int
+	Verbose bool
 }
 
 type Cidr struct {
@@ -139,7 +140,9 @@ func Do(p *NetScan, conFunc []Connector) {
 						success, _ := c.Do(addr)
 						if success {
 							entryList = append(entryList, Entry{Addr: addr, Success: success})
-							log.Printf("[%s] %s running %s", TAG, addr, c.Identifier())
+							if p.Verbose {
+								log.Printf("[%s] %s running %s", TAG, addr, c.Identifier())
+							}
 						}
 					}
 					defer wg.Done()
@@ -183,7 +186,7 @@ func Do(p *NetScan, conFunc []Connector) {
 			Start:  start,
 		},
 	}
-	buf, err := json.MarshalIndent(r, "    ", " ")
+	buf, err := json.MarshalIndent(r, " ", "    ")
 	if err != nil {
 		log.Fatalf("Failed to produce output report: %s", err)
 	}

@@ -50,6 +50,7 @@ or available services on the network.`,
 	workers  int
 	portNums []int
 	cidrs    []*scan.Cidr
+	verbose  bool
 
 	password string
 )
@@ -62,9 +63,9 @@ func Execute() {
 	}
 }
 
-func addPassword() {
+func addPassword(c *cobra.Command) {
 	if !PasswordAdded {
-		addFlag("password", "s", "", "The password attempt to use in the scan", &password)
+		c.PersistentFlags().StringVarP(&password, "password", "s", "", "The password attempt to use in the scan")
 	}
 	PasswordAdded = true
 }
@@ -76,46 +77,11 @@ func addFlag(longOpt, opt, def, desc string, v *string) {
 }
 
 func init() {
-	//RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "80,443", "The set of ports to scan")
 	RootCmd.PersistentFlags().StringVarP(&netCsv, "net", "n", "", "The cidrs to scan")
 	RootCmd.PersistentFlags().StringVarP(&portCsv, "ports", "p", "0", "The set of ports to scan")
 	RootCmd.PersistentFlags().IntVarP(&workers, "workers", "w", 50, "The number of goroutinues to use for parallel scanning")
-	//cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	// RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.map.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose debugging output during scanning.")
 }
-
-// initConfig reads in config file and ENV variables if set.
-// func initConfig() {
-// 	if cfgFile != "" {
-// 		// Use config file from the flag.
-// 		viper.SetConfigFile(cfgFile)
-// 	} else {
-// 		// Find home directory.
-// 		home, err := homedir.Dir()
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-//
-// 		// Search config in home directory with name ".map" (without extension).
-// 		viper.AddConfigPath(home)
-// 		viper.SetConfigName(".map")
-// 	}
-//
-// 	viper.AutomaticEnv() // read in environment variables that match
-//
-// 	// If a config file is found, read it in.
-// 	//if err := viper.ReadInConfig(); err == nil {
-// 	//	fmt.Println("Using config file:", viper.ConfigFileUsed())
-// 	//}
-// }
 
 func parsePortRange(pr string) ([]int, error) {
 	s := strings.Split(pr, "-")
@@ -139,7 +105,7 @@ func parsePortRange(pr string) ([]int, error) {
 	var (
 		nums []int
 	)
-	for i := a; i < b; i++ {
+	for i := a; i <= b; i++ {
 		if i < 0 || i > 65535 {
 			return nil, fmt.Errorf("Invalid port number: %s")
 		}
@@ -197,6 +163,7 @@ func root(cmd *cobra.Command, port string, f scan.Connector) {
 		Ports:   portNums,
 		Scans:   scans,
 		Workers: workers,
+		Verbose: verbose,
 	}
 	scan.Do(s, []scan.Connector{f})
 }

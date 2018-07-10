@@ -42,6 +42,6 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	addPassword()
+	addPassword(redisCmd)
 	RootCmd.AddCommand(redisCmd)
 }

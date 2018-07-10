@@ -26,13 +26,13 @@ const (
 // redisCmd represents the redis command
 var portCmd = &cobra.Command{
 	Use:   "port",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Scan for open ports.",
+	Long: `The port scan is a useful scan that has
+been around for a long time. Test for open
+ports by establishing a full TCP connect
+with remote serves, and quickly generate a
+baseline of what services the machine may
+be running.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		root(cmd, defaultPortPort, port.Doer)
 	},

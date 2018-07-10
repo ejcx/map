@@ -14,6 +14,3 @@ Scan for all open redis clusters on the internet
 ```
 
 ## Usage
-`map` usage is based mostly on two flags.
- - `-n`, `--net`: CIDR of network to scan. Example: `127.0.0.1/32`
- - `-p`, `--port`: Port range to scan. Examples: `1-65000`, `22`, `22-25`
