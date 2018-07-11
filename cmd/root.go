@@ -29,8 +29,6 @@ import (
 var (
 	cfgFile   string
 	scanTypes []string
-
-	PasswordAdded = false
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -53,6 +51,7 @@ or available services on the network.`,
 	verbose  bool
 
 	password string
+	username string
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -64,10 +63,11 @@ func Execute() {
 }
 
 func addPassword(c *cobra.Command) {
-	if !PasswordAdded {
-		c.PersistentFlags().StringVarP(&password, "password", "s", "", "The password attempt to use in the scan")
-	}
-	PasswordAdded = true
+	c.PersistentFlags().StringVarP(&password, "password", "s", "", "The password attempt to use in the scan")
+}
+
+func addUsername(c *cobra.Command) {
+	c.PersistentFlags().StringVarP(&username, "username", "u", "", "The username attempt to use in the scan")
 }
 
 // addFlag is a small abstraction around adding flags.

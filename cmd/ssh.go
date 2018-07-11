@@ -15,31 +15,33 @@
 package cmd
 
 import (
-	"github.com/ejcx/map/scan/redis"
+	"github.com/ejcx/map/scan/ssh"
 	"github.com/spf13/cobra"
 )
 
 const (
-	defaultRedisPort = "6379"
+	defaultSshPort = "22"
 )
 
-// redisCmd represents the redis command
-var redisCmd = &cobra.Command{
-	Use:   "redis",
-	Short: "Scan for open redis instances.",
-	Long: `Redis is a common datastore used in distributed
-and highly available applications. Scan for redis
-instances that are available to your network and
-potentially password protected.`,
+// sshCmd represents the ssh command
+var sshCmd = &cobra.Command{
+	Use:   "ssh",
+	Short: "Scan for open ssh instances.",
+	Long: `SSH needs no introduction. It's used to
+access just about ever linux system that
+exists. It can use key or password based
+authentication`,
 	Run: func(cmd *cobra.Command, args []string) {
-		doer := &redis.RedisDoer{
+		doer := &ssh.SshDoer{
+			Username: username,
 			Password: password,
 		}
-		root(cmd, defaultRedisPort, doer)
+		root(cmd, defaultSshPort, doer)
 	},
 }
 
 func init() {
-	addPassword(redisCmd)
-	RootCmd.AddCommand(redisCmd)
+	addUsername(sshCmd)
+	addPassword(sshCmd)
+	RootCmd.AddCommand(sshCmd)
 }

@@ -24,7 +24,6 @@ const (
 )
 
 var (
-	username string
 	protocol string
 	dbname   string
 )
@@ -51,7 +50,7 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	mysqlCmd.Flags().StringVarP(&username, "username", "u", "root", "The username used to connect to the db")
+	addUsername(mysqlCmd)
 	addPassword(mysqlCmd)
 	mysqlCmd.Flags().StringVarP(&protocol, "protocol", "q", "tcp", "The protocol used to connect to the db")
 	mysqlCmd.Flags().StringVarP(&dbname, "dbname", "d", "mysql", "The database name used to connect to the db")
